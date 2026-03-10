@@ -1,0 +1,52 @@
+version: '3'
+
+services:
+
+  mysql:
+    image: mysql:5.7
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: Senha123
+      MYSQL_DATABASE: meubanco
+    volumes:
+      - ./banco.sql:/docker-entrypoint-initdb.d/banco.sql
+
+  app1:
+    image: webdevops/php-apache:alpine-php7
+    container_name: app1
+    volumes:
+      - ./index.php:/app/index.php
+    environment:
+      DB_HOST: mysql
+    depends_on:
+      - mysql
+
+  app2:
+    image: webdevops/php-apache:alpine-php7
+    container_name: app2
+    volumes:
+      - ./index.php:/app/index.php
+    environment:
+      DB_HOST: mysql
+    depends_on:
+      - mysql
+
+  app3:
+    image: webdevops/php-apache:alpine-php7
+    container_name: app3
+    volumes:
+      - ./index.php:/app/index.php
+    environment:
+      DB_HOST: mysql
+    depends_on:
+      - mysql
+
+  nginx:
+    build: .
+    container_name: nginx-lb
+    ports:
+      - "4500:4500"
+    depends_on:
+      - app1
+      - app2
+      - app3
